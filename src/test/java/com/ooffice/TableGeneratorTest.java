@@ -47,7 +47,7 @@ public class TableGeneratorTest extends TestCase {
 	public void testBetweenBookmarksMultiple() {
 		long ini = System.currentTimeMillis();
 		for (int i = 0; i < NUMERO_DOCUMENTOS_GENERADOS; i++) {
-			assertEquals(1, generarDocumento());
+			assertEquals(4, generarDocumento());
 		}
 		System.out.println("Generacion de documentos realizada en "
 				+ (System.currentTimeMillis() - ini) + " ms");
@@ -55,7 +55,7 @@ public class TableGeneratorTest extends TestCase {
 	}
 
 	public void testBetweenBookmarks() {
-		assertEquals(1, generarDocumento());
+		assertEquals(4, generarDocumento());
 	}
 
 	private int generarDocumento() {

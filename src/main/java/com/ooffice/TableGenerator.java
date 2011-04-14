@@ -381,9 +381,23 @@ public class TableGenerator {
 
 		xPageCursor.jumpToLastPage();
 		pages = xPageCursor.getPage();
-
+		
+		
+		
+		/* NUEVO */
+//		xBookmarkContent.dispose();
+//		xController_t.dispose();
+//		xController_s.dispose();
+//		xController_targetDoc.dispose();
+//		xController_sourceDoc.dispose();
+//		xController_t2.dispose();
+		
+		
+		/* FIN NUEVO */
+		
+		
 		xTextDocument_sourceDoc.dispose();
-		xTextDocument_targetDoc.dispose();
+		xTextDocument_targetDoc.dispose();		
 
 		return pages;
 	}
