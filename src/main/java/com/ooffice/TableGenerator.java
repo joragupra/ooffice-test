@@ -61,6 +61,7 @@ import com.sun.star.uno.XInterface;
 import com.sun.star.util.XReplaceDescriptor;
 import com.sun.star.util.XReplaceable;
 
+
 public class TableGenerator {
 
 	
@@ -139,8 +140,8 @@ public class TableGenerator {
 		      XUnoUrlResolver xurlresolver = ( XUnoUrlResolver )
 		      UnoRuntime.queryInterface( XUnoUrlResolver.class,objectUrlResolver );
 		      
-		      String ip_openoffice = ResourceBundle.getBundle("aplicacion").getString("ip.openoffice");
-		      String puerto_openoffice = ResourceBundle.getBundle("aplicacion").getString("puerto.openoffice");
+		      String ip_openoffice = "localhost";//ResourceBundle.getBundle("aplicacion").getString("ip.openoffice");
+		      String puerto_openoffice = "2002";//ResourceBundle.getBundle("aplicacion").getString("puerto.openoffice");
 		      
 		      Object objectInitial = xurlresolver.resolve( "uno:socket,host="+ip_openoffice+",port="+puerto_openoffice+";urp;StarOffice.ServiceManager" );
 		      
@@ -183,17 +184,23 @@ public class TableGenerator {
 	   * @param cabecera Texto de la cabecera
 	   * @param pie Texto del pie
 	†††*/
-	public synchronized static int betweenBookmarks (String source, String target, String init_bookmark_source, String end_bookmark_source, String init_bookmark_target, String cabecera, String pie) {
-		
+	public synchronized static int betweenBookmarks(String source,
+			String target, String init_bookmark_source,
+			String end_bookmark_source, String init_bookmark_target,
+			String cabecera, String pie) {
+
 		int pages = 0;
-		
+
 		XComponent xComponent_sourceDoc = null;
 		try {
 			PropertyValue[] loadProps = new PropertyValue[1];
 			loadProps[0] = new PropertyValue();
 			loadProps[0].Name = "Hidden";
 			loadProps[0].Value = new Boolean(true);
-			xComponent_sourceDoc = TableGenerator.xcomponentloader.loadComponentFromURL("file:///"+source.replace('\\','/'), "_blank", 0, loadProps );
+			xComponent_sourceDoc = TableGenerator.xcomponentloader
+					.loadComponentFromURL(
+							"file:///" + source.replace('\\', '/'), "_blank",
+							0, loadProps);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
@@ -205,152 +212,179 @@ public class TableGenerator {
 			loadProps[0] = new PropertyValue();
 			loadProps[0].Name = "Hidden";
 			loadProps[0].Value = new Boolean(true);
-			xComponent_targetDoc = TableGenerator.xcomponentloader.loadComponentFromURL("file:///"+target.replace('\\','/'), "_blank", 0, loadProps );
+			xComponent_targetDoc = TableGenerator.xcomponentloader
+					.loadComponentFromURL(
+							"file:///" + target.replace('\\', '/'), "_blank",
+							0, loadProps);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
-		
-		XTextDocument xTextDocument_sourceDoc = (XTextDocument) UnoRuntime.queryInterface(XTextDocument.class,xComponent_sourceDoc);
-		XTextDocument xTextDocument_targetDoc = (XTextDocument) UnoRuntime.queryInterface(XTextDocument.class, xComponent_targetDoc);
-		
-		//the controllers
 
-		XController xController_sourceDoc = xTextDocument_sourceDoc.getCurrentController();
-		XController xController_targetDoc = xTextDocument_targetDoc.getCurrentController();
-		
-		XModel xModel_source = (XModel)UnoRuntime.queryInterface(XModel.class, xComponent_sourceDoc);
-		XModel xModel_target = (XModel)UnoRuntime.queryInterface(XModel.class, xComponent_targetDoc);
-		
-		//Seleccionando la secci√≥n a copiar
-		XBookmarksSupplier xBookmarksSupplier = (XBookmarksSupplier) UnoRuntime.queryInterface(XBookmarksSupplier.class, xComponent_sourceDoc);
+		XTextDocument xTextDocument_sourceDoc = (XTextDocument) UnoRuntime
+				.queryInterface(XTextDocument.class, xComponent_sourceDoc);
+		XTextDocument xTextDocument_targetDoc = (XTextDocument) UnoRuntime
+				.queryInterface(XTextDocument.class, xComponent_targetDoc);
+
+		// the controllers
+
+		XController xController_sourceDoc = xTextDocument_sourceDoc
+				.getCurrentController();
+		XController xController_targetDoc = xTextDocument_targetDoc
+				.getCurrentController();
+
+		XModel xModel_source = (XModel) UnoRuntime.queryInterface(XModel.class,
+				xComponent_sourceDoc);
+		XModel xModel_target = (XModel) UnoRuntime.queryInterface(XModel.class,
+				xComponent_targetDoc);
+
+		// Seleccionando la secci√≥n a copiar
+		XBookmarksSupplier xBookmarksSupplier = (XBookmarksSupplier) UnoRuntime
+				.queryInterface(XBookmarksSupplier.class, xComponent_sourceDoc);
 		XNameAccess xNamedBookmarks = xBookmarksSupplier.getBookmarks();
 		Object bookmark = null;
 		Object bookmark1 = null;
 		Object bookmark2 = null;
-		
+
 		try {
-			
+
 			bookmark1 = xNamedBookmarks.getByName(init_bookmark_source);
 			bookmark2 = xNamedBookmarks.getByName(end_bookmark_source);
-			bookmark = xNamedBookmarks.getByName(init_bookmark_source+"1");
+			bookmark = xNamedBookmarks.getByName(init_bookmark_source + "1");
 		} catch (Exception e2) {
 			// TODO Auto-generated catch block
-			//e2.printStackTrace();
+			// e2.printStackTrace();
 			bookmark = bookmark1;
 		}
-		
-		XTextContent xBookmarkContent = (XTextContent)UnoRuntime.queryInterface(XTextContent.class, bookmark);
+
+		XTextContent xBookmarkContent = (XTextContent) UnoRuntime
+				.queryInterface(XTextContent.class, bookmark);
 		XTextRange range1 = xBookmarkContent.getAnchor();
-		xBookmarkContent = (XTextContent)UnoRuntime.queryInterface(XTextContent.class, bookmark2);
+		xBookmarkContent = (XTextContent) UnoRuntime.queryInterface(
+				XTextContent.class, bookmark2);
 		XTextRange range2 = xBookmarkContent.getAnchor();
-		
+
 		XController xController_s = xModel_source.getCurrentController();
-		XTextViewCursorSupplier xViewCursorSupplier_sourceDoc = (XTextViewCursorSupplier)UnoRuntime.queryInterface(XTextViewCursorSupplier.class, xController_s);
-		XTextViewCursor xTextViewCursor_sourceDoc = xViewCursorSupplier_sourceDoc.getViewCursor();
+		XTextViewCursorSupplier xViewCursorSupplier_sourceDoc = (XTextViewCursorSupplier) UnoRuntime
+				.queryInterface(XTextViewCursorSupplier.class, xController_s);
+		XTextViewCursor xTextViewCursor_sourceDoc = xViewCursorSupplier_sourceDoc
+				.getViewCursor();
 		XText xDocumentText = xTextViewCursor_sourceDoc.getText();
-		XTextCursor xModelCursor = xDocumentText.createTextCursorByRange(xTextViewCursor_sourceDoc.getStart());
-		
+		XTextCursor xModelCursor = xDocumentText
+				.createTextCursorByRange(xTextViewCursor_sourceDoc.getStart());
+
 		short s = 1;
 		short s2 = 2;
-		
+
 		xTextViewCursor_sourceDoc.gotoRange(range1, false);
 		xTextViewCursor_sourceDoc.goRight(s, false);
-		
+
 		try {
 			xTextViewCursor_sourceDoc.gotoRange(range2, true);
 		} catch (com.sun.star.uno.RuntimeException e2) {
 			// TODO Auto-generated catch block
-			//e2.printStackTrace();
+			// e2.printStackTrace();
 			xTextViewCursor_sourceDoc.goLeft(s, false);
 			xTextViewCursor_sourceDoc.gotoRange(range2, true);
 		}
-		
+
 		xTextViewCursor_sourceDoc.goLeft(s2, true);
-		
-		
-		
-		//getting the data supplier of our source doc
-		XTransferableSupplier xTransferableSupplier_sourceDoc = (XTransferableSupplier) UnoRuntime.queryInterface(
-				XTransferableSupplier.class, xController_sourceDoc);
-		//saving the selected contents
-		XTransferable xTransferable = xTransferableSupplier_sourceDoc.getTransferable();
-		
-		//getting the data supplier of our target doc
-		XTransferableSupplier xTransferableSupplier_targetDoc = (XTransferableSupplier)UnoRuntime.queryInterface(
-				XTransferableSupplier.class, xController_targetDoc);
-		
-		//the cursor for the target document
+
+		// getting the data supplier of our source doc
+		XTransferableSupplier xTransferableSupplier_sourceDoc = (XTransferableSupplier) UnoRuntime
+				.queryInterface(XTransferableSupplier.class,
+						xController_sourceDoc);
+		// saving the selected contents
+		XTransferable xTransferable = xTransferableSupplier_sourceDoc
+				.getTransferable();
+
+		// getting the data supplier of our target doc
+		XTransferableSupplier xTransferableSupplier_targetDoc = (XTransferableSupplier) UnoRuntime
+				.queryInterface(XTransferableSupplier.class,
+						xController_targetDoc);
+
+		// the cursor for the target document
 		XController xController_t = xModel_target.getCurrentController();
-		XTextViewCursorSupplier xViewCursorSupplier_targetDoc = (XTextViewCursorSupplier)UnoRuntime.queryInterface(XTextViewCursorSupplier.class, xController_t);
-		
-		XTextViewCursor xTextViewCursor_targetDoc = xViewCursorSupplier_targetDoc.getViewCursor();
-		XBookmarksSupplier xBookmarksSupplier_t = (XBookmarksSupplier) UnoRuntime.queryInterface(XBookmarksSupplier.class, xComponent_targetDoc);
+		XTextViewCursorSupplier xViewCursorSupplier_targetDoc = (XTextViewCursorSupplier) UnoRuntime
+				.queryInterface(XTextViewCursorSupplier.class, xController_t);
+
+		XTextViewCursor xTextViewCursor_targetDoc = xViewCursorSupplier_targetDoc
+				.getViewCursor();
+		XBookmarksSupplier xBookmarksSupplier_t = (XBookmarksSupplier) UnoRuntime
+				.queryInterface(XBookmarksSupplier.class, xComponent_targetDoc);
 		XNameAccess xNamedBookmarks_t = xBookmarksSupplier_t.getBookmarks();
 		Object bookmark3 = null;
-		
+
 		try {
 			bookmark3 = xNamedBookmarks_t.getByName(init_bookmark_target);
-			
+
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-	
-		XTextContent xBookmarkContent2 = (XTextContent)UnoRuntime.queryInterface(XTextContent.class, bookmark3);
+
+		XTextContent xBookmarkContent2 = (XTextContent) UnoRuntime
+				.queryInterface(XTextContent.class, bookmark3);
 		XTextRange range1_target = xBookmarkContent2.getAnchor();
-		
-		//XText xDocumentText_target = xTextViewCursor_targetDoc.getText();
-		//XTextCursor xModelCursor_target = xDocumentText_target.createTextCursorByRange(xTextViewCursor_targetDoc.getStart());
+
+		// XText xDocumentText_target = xTextViewCursor_targetDoc.getText();
+		// XTextCursor xModelCursor_target =
+		// xDocumentText_target.createTextCursorByRange(xTextViewCursor_targetDoc.getStart());
 		xTextViewCursor_targetDoc.gotoRange(range1_target, false);
-		
+
 		try {
-			if(!cabecera.equals("")){
-			
+			if (!cabecera.equals("")) {
+
 				xTextViewCursor_targetDoc.gotoEnd(false);
 				xTextViewCursor_targetDoc.setString(cabecera);
 				xTextViewCursor_targetDoc.gotoEnd(false);
 			}
-			
-			//xTextViewCursor_targetDoc.gotoRange(range1_target.getEnd(), false);
+
+			// xTextViewCursor_targetDoc.gotoRange(range1_target.getEnd(),
+			// false);
 			xTransferableSupplier_targetDoc.insertTransferable(xTransferable);
-			if(!pie.equals(""))
+			if (!pie.equals(""))
 				xTextViewCursor_targetDoc.setString(pie);
-			
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
+
 		}
-		
-		com.sun.star.frame.XStorable xStorable = (XStorable)UnoRuntime.queryInterface(XStorable.class, xTextDocument_targetDoc);
+
+		com.sun.star.frame.XStorable xStorable = (XStorable) UnoRuntime
+				.queryInterface(XStorable.class, xTextDocument_targetDoc);
 		try {
 			boolean es = xStorable.isReadonly();
 			xStorable.store();
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
+
 		}
-		
-		XController xController_t2 = xTextDocument_sourceDoc.getCurrentController();
-		XTextViewCursorSupplier xViewCursorSupplier_targetDoc2 = (XTextViewCursorSupplier)UnoRuntime.queryInterface(XTextViewCursorSupplier.class, xController_t2);
-		
-		XTextViewCursor xTextViewCursor_targetDoc2 = xViewCursorSupplier_targetDoc2.getViewCursor();
+
+		XController xController_t2 = xTextDocument_sourceDoc
+				.getCurrentController();
+		XTextViewCursorSupplier xViewCursorSupplier_targetDoc2 = (XTextViewCursorSupplier) UnoRuntime
+				.queryInterface(XTextViewCursorSupplier.class, xController_t2);
+
+		XTextViewCursor xTextViewCursor_targetDoc2 = xViewCursorSupplier_targetDoc2
+				.getViewCursor();
 		xTextViewCursor_targetDoc2.getEnd();
-		
-		//Get a reference to the XPageCursor 
-		
-		XPageCursor xPageCursor = (XPageCursor)UnoRuntime.queryInterface(XPageCursor.class, xTextViewCursor_targetDoc2);
+
+		// Get a reference to the XPageCursor
+
+		XPageCursor xPageCursor = (XPageCursor) UnoRuntime.queryInterface(
+				XPageCursor.class, xTextViewCursor_targetDoc2);
 
 		xPageCursor.jumpToLastPage();
 		pages = xPageCursor.getPage();
-		
+
 		xTextDocument_sourceDoc.dispose();
 		xTextDocument_targetDoc.dispose();
-		
+
 		return pages;
 	}
 
