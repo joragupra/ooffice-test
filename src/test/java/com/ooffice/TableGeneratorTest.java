@@ -13,23 +13,23 @@ import junit.framework.TestSuite;
  * Unit test for simple App.
  */
 public class TableGeneratorTest extends TestCase {
-	
+
 	private static final String PIE = "Pie!!";
 
 	private static final String CABECERA = "Cabecera!!!";
 
 	public static final String RUTA_FICHERO_PLANTILLA = "c:\\temp-test-ooffice\\ND_NOTIFICACION.sxw";
-	
+
 	public static final String RUTA_FICHERO_GENERADO = "c:\\temp-test-ooffice\\GEN_ND_NOTIFICACION.sxw";
-	
+
 	public static final String INICIO_BOOKMARK = "inicio_decreto";
-	
+
 	public static final String FIN_BOOKMARK = "fin_decreto";
-	
+
 	public static final String TARGET_BOOKMARK = "inicio_decreto";
-	
+
 	public static final int NUMERO_DOCUMENTOS_GENERADOS = 1000;
-	
+
 	/**
 	 * Create the test case
 	 * 
@@ -39,24 +39,36 @@ public class TableGeneratorTest extends TestCase {
 	public TableGeneratorTest(String testName) {
 		super(testName);
 	}
-	
-	public void setUp(){
+
+	public void setUp() {
 		TableGenerator.initialize();
 	}
-	
+
+	public void testBetweenBookmarksMultiple() {
+		long ini = System.currentTimeMillis();
+		for (int i = 0; i < NUMERO_DOCUMENTOS_GENERADOS; i++) {
+			assertEquals(1, generarDocumento());
+		}
+		System.out.println("Generacion de documentos realizada en "
+				+ (System.currentTimeMillis() - ini) + " ms");
+		assertTrue(true);
+	}
+
 	public void testBetweenBookmarks() {
 		assertEquals(1, generarDocumento());
 	}
-	
-	private int generarDocumento(){
-		return TableGenerator.betweenBookmarks(RUTA_FICHERO_PLANTILLA, crearFicheroDestino(), 
-				INICIO_BOOKMARK, FIN_BOOKMARK, TARGET_BOOKMARK, CABECERA, PIE);
+
+	private int generarDocumento() {
+		return TableGenerator.betweenBookmarks(RUTA_FICHERO_PLANTILLA,
+				crearFicheroDestino(), INICIO_BOOKMARK, FIN_BOOKMARK,
+				TARGET_BOOKMARK, CABECERA, PIE);
 	}
 
 	private String crearFicheroDestino() {
 		File original = new File(RUTA_FICHERO_GENERADO);
 		String[] ficheroExtension = RUTA_FICHERO_GENERADO.split("\\.");
-		File copia = new File(ficheroExtension[0]+"_"+System.currentTimeMillis()+"."+ficheroExtension[1]);
+		File copia = new File(ficheroExtension[0] + "_"
+				+ System.currentTimeMillis() + "." + ficheroExtension[1]);
 		try {
 			FileUtils.copyFile(original, copia);
 		} catch (IOException e) {
