@@ -93,7 +93,7 @@ public class TableGenerator {
 	
 	
 	public static void main(String[] args){
-		initialize();
+		initialize(2002);
 		  
 		Vector aux = new Vector();
 		aux.add("C:\\TEMP\\3321209911268359.sxw");
@@ -103,7 +103,7 @@ public class TableGenerator {
 		
 	}
 	  
-	public synchronized static void initialize( ) {
+	public synchronized static void initialize(int puerto) {
 		  		
 	/*try {
 	    try {
@@ -141,7 +141,7 @@ public class TableGenerator {
 		      UnoRuntime.queryInterface( XUnoUrlResolver.class,objectUrlResolver );
 		      
 		      String ip_openoffice = "localhost";//ResourceBundle.getBundle("aplicacion").getString("ip.openoffice");
-		      String puerto_openoffice = "2002";//ResourceBundle.getBundle("aplicacion").getString("puerto.openoffice");
+		      String puerto_openoffice = "" + puerto;//ResourceBundle.getBundle("aplicacion").getString("puerto.openoffice");
 		      
 		      Object objectInitial = xurlresolver.resolve( "uno:socket,host="+ip_openoffice+",port="+puerto_openoffice+";urp;StarOffice.ServiceManager" );
 		      
@@ -270,9 +270,9 @@ public class TableGenerator {
 				.queryInterface(XTextViewCursorSupplier.class, xController_s);
 		XTextViewCursor xTextViewCursor_sourceDoc = xViewCursorSupplier_sourceDoc
 				.getViewCursor();
-		XText xDocumentText = xTextViewCursor_sourceDoc.getText();
-		XTextCursor xModelCursor = xDocumentText
-				.createTextCursorByRange(xTextViewCursor_sourceDoc.getStart());
+//		XText xDocumentText = xTextViewCursor_sourceDoc.getText();
+//		XTextCursor xModelCursor = xDocumentText
+//				.createTextCursorByRange(xTextViewCursor_sourceDoc.getStart());
 
 		short s = 1;
 		short s2 = 2;
