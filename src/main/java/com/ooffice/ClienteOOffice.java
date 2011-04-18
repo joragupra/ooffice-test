@@ -15,7 +15,7 @@ public class ClienteOOffice {
 	/*                          CONSTANTES PUBLICAS                       */
 	/* deberian estar configuradas en un fichero de propiedades o similar */
 	/*                                                                    */
-	public static final String OOFFICE_PATH = "c:\\Archivos de programa\\OpenOffice.org 3\\program\\soffice.exe";
+	public static final String OOFFICE_PATH = "/opt/openoffice.org3/program/soffice";
 	
 	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
 	
@@ -23,7 +23,7 @@ public class ClienteOOffice {
 	
 	public static final int PUERTO_INICIAL = 2003;  //a partir de este puerto se empiezan a buscar puertos libres para arrancar el proceso ooffice.bin
 	
-	public static final String SO_HOST = "WINDOWS"; //en el codigo se esperan los valores 'WINDOWS' o 'LINUX'
+	public static final String SO_HOST = "LINUX"; //en el codigo se esperan los valores 'WINDOWS' o 'LINUX'
 	/*                                                                    */
 	/*                     FIN  CONSTANTES PUBLICAS                       */
 	/*                                                                    */
@@ -34,9 +34,9 @@ public class ClienteOOffice {
 
 	private static final String CABECERA = "Esto va en la cabecera";
 
-	private static final String RUTA_FICHERO_PLANTILLA = "c:\\temp-test-ooffice\\ND_NOTIFICACION.sxw";
+	private static final String RUTA_FICHERO_PLANTILLA = "/tmp/ooffice/ND_NOTIFICACION.sxw";
 
-	private static final String RUTA_FICHERO_GENERADO = "c:\\temp-test-ooffice\\GEN_ND_NOTIFICACION.sxw";
+	private static final String RUTA_FICHERO_GENERADO = "/tmp/ooffice/GEN_ND_NOTIFICACION.sxw";
 
 	private static final String INICIO_BOOKMARK = "inicio_decreto";
 
@@ -79,7 +79,10 @@ public class ClienteOOffice {
 	 * @return
 	 */
 	public int generarDocumento() {
+		System.out.println("Buscando puerto libre...");
 		ServerSocket socket = buscarPuertoLibre(PUERTO_INICIAL);
+		System.out.println("Puerto encontrando: " + socket.getLocalPort());
+		System.out.println("Inicando proceso ooffice...");
 		Process p = iniciarProcesoOpenOffice(socket.getLocalPort());
 		TableGenerator.initialize(socket.getLocalPort());
 		int result = TableGenerator.betweenBookmarks(RUTA_FICHERO_PLANTILLA,
@@ -92,33 +95,6 @@ public class ClienteOOffice {
 			e.printStackTrace();
 		}
 		return result;
-	}
-	
-	public Process iniciarProcesoOpenOffice(int puerto){
-		try {
-			ProcessBuilder pb = new ProcessBuilder(OOFFICE_PATH,
-				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
-				    "-invisible", "-headless", "-nologo", "-nofirststartwizard");
-			Map<String, String> env = pb.environment();
-			if ("WINDOWS".equals(SO_HOST)) {
-			    env.put("USERPROFILE", "c:\\user"+puerto);
-			} else {
-			    env.put("HOME", "/tmp/user"+puerto);
-			}
-			Process result = pb.start();
-			Thread t = Thread.currentThread();
-			synchronized (t) {
-				try {
-					t.wait(TIEMPO_ESPERA);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-			}
-			return result;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 	
 	public ServerSocket buscarPuertoLibre(int initPort){
@@ -134,6 +110,40 @@ public class ClienteOOffice {
 			}
 		}
 		return socket;
+	}
+	
+	public Process iniciarProcesoOpenOffice(int puerto){
+		try {
+			System.out.println("Ejecutando commando " + OOFFICE_PATH +
+				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager" +
+				    "-invisible" + "-headless" + "-nologo" + "-nofirststartwizard");
+			ProcessBuilder pb = new ProcessBuilder(OOFFICE_PATH,
+				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
+				    "-invisible", "-headless", "-nologo", "-nofirststartwizard");
+			Map<String, String> env = pb.environment();
+			if ("WINDOWS".equals(SO_HOST)) {
+				System.out.println("Estableciendo entorno " + "c:\\user" + puerto);
+			    env.put("USERPROFILE", "c:\\user"+puerto);
+			} else {
+				System.out.println("Estableciendo entorno " + "/tmp/user" + puerto);
+			    env.put("HOME", "/tmp/user"+puerto);
+			}
+			System.out.println("Arrancando proceso...");
+			Process result = pb.start();
+			Thread t = Thread.currentThread();
+			synchronized (t) {
+				try {
+					t.wait(TIEMPO_ESPERA);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			}
+			System.out.println("Proceso arrancado con codigo de salida " + result.exitValue() + " despues de espera de " + TIEMPO_ESPERA + " ms");
+			return result;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**
