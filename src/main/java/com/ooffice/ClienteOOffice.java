@@ -19,7 +19,7 @@ public class ClienteOOffice {
 	
 	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
 	
-	public static final int TIEMPO_ESPERA = 3000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
+	public static final int TIEMPO_ESPERA = 10000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
 	
 	public static final int PUERTO_INICIAL = 2003;  //a partir de este puerto se empiezan a buscar puertos libres para arrancar el proceso ooffice.bin
 	
@@ -119,19 +119,18 @@ public class ClienteOOffice {
 			System.out.println("Ejecutando commando " + OOFFICE_PATH + 
 				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager"
 				    + " -headless" + " -nologo" + " -nofirststartwizard");
-			ProcessBuilder pb = new ProcessBuilder(OOFFICE_PATH,
-				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
-				    "-headless", "-nologo", "-nofirststartwizard");
-			Map<String, String> env = pb.environment();
-			if ("WINDOWS".equals(SO_HOST)) {
-				System.out.println("Estableciendo entorno " + "c:\\user" + puerto);
-			    env.put("USERPROFILE", "c:\\user"+puerto);
-			} else {
-				System.out.println("Estableciendo entorno " + "/tmp/user" + puerto);
-			    env.put("HOME", "/tmp/user"+puerto);
-			}
+			String[] command = new String[]{OOFFICE_PATH, SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
+					" -headless", " -nologo", " -nofirststartwizard"};
+//			Map<String, String> env = pb.environment();
+//			if ("WINDOWS".equals(SO_HOST)) {
+//				System.out.println("Estableciendo entorno " + "c:\\user" + puerto);
+//			    env.put("USERPROFILE", "c:\\user"+puerto);
+//			} else {
+//				System.out.println("Estableciendo entorno " + "/tmp/user" + puerto);
+//			    env.put("HOME", "/tmp/user"+puerto);
+//			}
 			System.out.println("Arrancando proceso...");
-			Process result = pb.start();
+			Process result = Runtime.getRuntime().exec(command);
 			Thread t = Thread.currentThread();
 			synchronized (t) {
 				try {

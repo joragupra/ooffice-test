@@ -145,7 +145,7 @@ public class TableGenerator {
 		      
 		      System.out.println("Conectando a soffice con interfaz UNO por puerto " + puerto_openoffice);
 		      Object objectInitial = xurlresolver.resolve( "uno:socket,host="+ip_openoffice+",port="+puerto_openoffice+";urp;StarOffice.ServiceManager" );
-		      
+		      System.out.println("Conexion con soffice con interfaz UNO por puerto " + puerto_openoffice + " realizada correctamente");
 
 		      xMultiComponentFactory = ( XMultiComponentFactory )
 		      UnoRuntime.queryInterface( XMultiComponentFactory.class, objectInitial );
