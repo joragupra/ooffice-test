@@ -15,13 +15,13 @@ public class ClienteOOffice {
 	/*                          CONSTANTES PUBLICAS                       */
 	/* deberian estar configuradas en un fichero de propiedades o similar */
 	/*                                                                    */
-	public static final String OOFFICE_PATH = "/opt/openoffice.org3/program/soffice.bin";
+	public static final String OOFFICE_PATH = "/opt/openoffice.org2.4/program/soffice";
 	
-	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
+	private static final String SOCKET_OPTS = "\"-accept=socket,host=localhost,port=";
 	
 	public static final int TIEMPO_ESPERA = 10000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
 	
-	public static final int PUERTO_INICIAL = 2002;  //a partir de este puerto se empiezan a buscar puertos libres para arrancar el proceso ooffice.bin
+	public static final int PUERTO_INICIAL = 2003;  //a partir de este puerto se empiezan a buscar puertos libres para arrancar el proceso ooffice.bin
 	
 	public static final String SO_HOST = "LINUX"; //en el codigo se esperan los valores 'WINDOWS' o 'LINUX'
 	/*                                                                    */
@@ -82,7 +82,7 @@ public class ClienteOOffice {
 		System.out.println("Buscando puerto libre...");
 		ServerSocket socket = buscarPuertoLibre(PUERTO_INICIAL);
 		System.out.println("Puerto encontrando: " + socket.getLocalPort());
-		System.out.println("Inicando proceso soffice...");
+		System.out.println("Iniciando proceso soffice...");
 		Process p = iniciarProcesoOpenOffice(socket.getLocalPort());
 		TableGenerator.initialize(socket.getLocalPort());
 		int result = TableGenerator.betweenBookmarks(RUTA_FICHERO_PLANTILLA,
@@ -114,22 +114,24 @@ public class ClienteOOffice {
 	
 	public Process iniciarProcesoOpenOffice(int puerto){
 		try {
-			System.out.println("Ejecutando commando " + OOFFICE_PATH + 
-				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager" +
-				    "-invisible" + "-headless" + "-nologo" + "-nofirststartwizard");
-			ProcessBuilder pb = new ProcessBuilder(OOFFICE_PATH,
-				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
-				    "-invisible", "-headless", "-nologo", "-nofirststartwizard");
-			Map<String, String> env = pb.environment();
-			if ("WINDOWS".equals(SO_HOST)) {
-				System.out.println("Estableciendo entorno " + "c:\\user" + puerto);
-			    env.put("USERPROFILE", "c:\\user"+puerto);
-			} else {
-				System.out.println("Estableciendo entorno " + "/tmp/user" + puerto);
-			    env.put("HOME", "/tmp/user"+puerto);
-			}
+//			System.out.println("Ejecutando commando " + OOFFICE_PATH + " " +
+//				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager\"" +
+//				    "-nologo -headless -nofirststartwizard");
+			String[] command = new String[]{OOFFICE_PATH, 
+					SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager\""
+					+ " -nologo" + " -headless" + " -nofirststartwizard"};
+			System.out.println("Ejecutando commando " + command);
+			
+//			Map<String, String> env = pb.environment();
+//			if ("WINDOWS".equals(SO_HOST)) {
+//				System.out.println("Estableciendo entorno " + "c:\\user" + puerto);
+//			    env.put("USERPROFILE", "c:\\user"+puerto);
+//			} else {
+//				System.out.println("Estableciendo entorno " + "/tmp/user" + puerto);
+//			    env.put("HOME", "/tmp/user"+puerto);
+//			}
 			System.out.println("Arrancando proceso...");
-			Process result = pb.start();
+			Process result = Runtime.getRuntime().exec(command);
 			Thread t = Thread.currentThread();
 			synchronized (t) {
 				try {
