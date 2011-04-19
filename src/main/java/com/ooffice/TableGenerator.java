@@ -15,6 +15,8 @@ import java.util.ListIterator;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
+import com.artofsolving.jodconverter.openoffice.connection.OpenOfficeConnection;
+import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection;
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.beans.PropertyVetoException;
 import com.sun.star.beans.UnknownPropertyException;
@@ -73,19 +75,19 @@ public class TableGenerator {
 
 	static String indent = "";
 	  
-	static XComponentContext xComponentContext = null;
+	//static XComponentContext xComponentContext = null;
 	
 	
-	static String NOM_COL1 = "nº Registro";
-	static String NOM_COL2 = "Nº Fact.";
+	static String NOM_COL1 = "nï¿½ Registro";
+	static String NOM_COL2 = "Nï¿½ Fact.";
 	static String NOM_COL3 = "Tercero";
-	static String NOM_COL4 = "Descripción";
+	static String NOM_COL4 = "Descripciï¿½n";
 	static String NOM_COL5 = "Importe";
-	static String NOM_COL6 = "Aplicación";
-	static String NOM_COL7 = "Operación";
+	static String NOM_COL6 = "Aplicaciï¿½n";
+	static String NOM_COL7 = "Operaciï¿½n";
 	static int 	  NUMBERS_COLS = 7;
 	
-	static String NOM_COL1_AEPSA = "Nº FACT.";
+	static String NOM_COL1_AEPSA = "Nï¿½ FACT.";
 	static String NOM_COL2_AEPSA = "FECHA";
 	static String NOM_COL3_AEPSA = "EMPRESA";
 	static String NOM_COL4_AEPSA = "IMPORTE";
@@ -124,66 +126,72 @@ public class TableGenerator {
 		
 		  	
 			//log.info("sxw2pdfl - Convirtiendo a PDF:" + sxw + "->" + pdf);
-		    try {
-		      try {
-				xComponentContext =    com.sun.star.comp.helper.Bootstrap.createInitialComponentContext( null );
-			} catch (java.lang.Exception e) {
-				
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//		    try {
+//		      try {
+//				xComponentContext =    com.sun.star.comp.helper.Bootstrap.createInitialComponentContext( null );
+//			} catch (java.lang.Exception e) {
+//				
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		      
-		      XMultiComponentFactory xMultiComponentFactory =      xComponentContext.getServiceManager();
+		      //XMultiComponentFactory xMultiComponentFactory =      xComponentContext.getServiceManager();
 
-		      Object objectUrlResolver = xMultiComponentFactory.createInstanceWithContext("com.sun.star.bridge.UnoUrlResolver", xComponentContext );
+		      //Object objectUrlResolver = xMultiComponentFactory.createInstanceWithContext("com.sun.star.bridge.UnoUrlResolver", xComponentContext );
 		      
-		      XUnoUrlResolver xurlresolver = ( XUnoUrlResolver )
-		      UnoRuntime.queryInterface( XUnoUrlResolver.class,objectUrlResolver );
+//		      XUnoUrlResolver xurlresolver = ( XUnoUrlResolver )
+//		      UnoRuntime.queryInterface( XUnoUrlResolver.class,objectUrlResolver );
 		      
 		      String ip_openoffice = "localhost";//ResourceBundle.getBundle("aplicacion").getString("ip.openoffice");
 		      String puerto_openoffice = "" + puerto;//ResourceBundle.getBundle("aplicacion").getString("puerto.openoffice");
 		      
-		      Object objectInitial = xurlresolver.resolve( "uno:socket,host="+ip_openoffice+",port="+puerto_openoffice+";urp;StarOffice.ServiceManager" );
+		      System.out.println("Conectando a servicio con SocketOpenOfficeConnection en host="+ip_openoffice+",port="+puerto_openoffice+" ...");
+		      //Object objectInitial = xurlresolver.resolve( "uno:socket,host="+ip_openoffice+",port="+puerto_openoffice+";urp;StarOffice.ServiceManager" );
+		      OpenOfficeConnection connection = new SocketOpenOfficeConnection(ip_openoffice, puerto);
+		      
+		      
+		      System.out.println("Conexion establecida correctamente");
+
+//		      xMultiComponentFactory = ( XMultiComponentFactory )
+//		      UnoRuntime.queryInterface( XMultiComponentFactory.class, objectInitial );
+		      
+//		      XPropertySet xpropertysetMultiComponentFactory = ( XPropertySet )
+//		      UnoRuntime.queryInterface( XPropertySet.class, xMultiComponentFactory );
 		      
 
-		      xMultiComponentFactory = ( XMultiComponentFactory )
-		      UnoRuntime.queryInterface( XMultiComponentFactory.class, objectInitial );
-		      
-		      XPropertySet xpropertysetMultiComponentFactory = ( XPropertySet )
-		      UnoRuntime.queryInterface( XPropertySet.class, xMultiComponentFactory );
+//		      Object objectDefaultContext =
+//		      xpropertysetMultiComponentFactory.getPropertyValue( "DefaultContext" );
 		      
 
-		      Object objectDefaultContext =
-		      xpropertysetMultiComponentFactory.getPropertyValue( "DefaultContext" );
+//		      xComponentContext = ( XComponentContext ) UnoRuntime.queryInterface(   XComponentContext.class, objectDefaultContext );
 		      
 
-		      xComponentContext = ( XComponentContext ) UnoRuntime.queryInterface(   XComponentContext.class, objectDefaultContext );
+//		      xcomponentloader = ( XComponentLoader )  UnoRuntime.queryInterface( XComponentLoader.class, xMultiComponentFactory.createInstanceWithContext("com.sun.star.frame.Desktop", xComponentContext ) );
 		      
-
-		      xcomponentloader = ( XComponentLoader )  UnoRuntime.queryInterface( XComponentLoader.class, xMultiComponentFactory.createInstanceWithContext("com.sun.star.frame.Desktop", xComponentContext ) );
+		      xcomponentloader = connection.getDesktop();
 		      
-		    }
-		    catch( Exception e ) {
-		      e.printStackTrace();
-
-		      
-		    }
+//		    }
+//		    catch( Exception e ) {
+//		      e.printStackTrace();
+//
+//		      
+//		    }
 		
 		}
 	
 	/**
-	   * 
-	   * Método que copia el contenido del documento fuente comprendido entre los bookmarks init_bookmark_source y end_bookmark_source, en el 
-	   * documento destino a partir del bookmark init_bokkmark_target y además le añade texto al comienzo y al fin.
-	   * 
-	   * @param source URL del documento fuente
-	   * @param target URL del documento destino
-	   * @param init_bookmark_source Bookmark inicial del bloque a copiar (se coge la primera ocurrencia dentro del documento)
-	   * @param end_bookmark_source Bookmark final del bloque a copiar
-	   * @param init_bookmark_target Bookmark del documento destino a partir de la cual se copiará la sección
+	ï¿½ï¿½ï¿½* 
+	ï¿½ï¿½ï¿½* Mï¿½todo que copia el contenido del documento fuente comprendido entre los bookmarks init_bookmark_source y end_bookmark_source, en el 
+	ï¿½ï¿½ï¿½* documento destino a partir del bookmark init_bokkmark_target y ademï¿½s le aï¿½ade texto al comienzo y al fin.
+	ï¿½ï¿½ï¿½* 
+	ï¿½ï¿½ï¿½* @param source URL del documento fuente
+	ï¿½ï¿½ï¿½* @param target URL del documento destino
+	ï¿½ï¿½ï¿½* @param init_bookmark_source Bookmark inicial del bloque a copiar (se coge la primera ocurrencia dentro del documento)
+	ï¿½ï¿½ï¿½* @param end_bookmark_source Bookmark final del bloque a copiar
+	ï¿½ï¿½ï¿½* @param init_bookmark_target Bookmark del documento destino a partir de la cual se copiarï¿½ la secciï¿½n
 	   * @param cabecera Texto de la cabecera
 	   * @param pie Texto del pie
-	   */
+	ï¿½ï¿½ï¿½*/
 	public synchronized static int betweenBookmarks(String source,
 			String target, String init_bookmark_source,
 			String end_bookmark_source, String init_bookmark_target,
@@ -456,7 +464,7 @@ public class TableGenerator {
 		}
 		
 		if(!error){
-			//Seleccionando la sección a copiar
+			//Seleccionando la secciï¿½n a copiar
 			XBookmarksSupplier xBookmarksSupplier = (XBookmarksSupplier) UnoRuntime.queryInterface(XBookmarksSupplier.class, xComponent_sourceDoc);
 			XNameAccess xNamedBookmarks = xBookmarksSupplier.getBookmarks();
 			Object bookmark = null;
