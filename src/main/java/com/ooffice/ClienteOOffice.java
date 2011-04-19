@@ -12,9 +12,7 @@ public class ClienteOOffice {
 	/*                          CONSTANTES PUBLICAS                       */
 	/* deberian estar configuradas en un fichero de propiedades o similar */
 	/*                                                                    */
-//	public static final String OOFFICE_PATH = "/opt/openoffice.org2.4/program/soffice";
-	
-	public static final String OOFFICE_PATH = "C:\\Archivos de programa\\OpenOffice.org 2.4\\program\\soffice.exe";
+	public static final String OOFFICE_PATH = "/opt/openoffice.org2.4/program/soffice";
 	
 	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
 	
@@ -77,14 +75,14 @@ public class ClienteOOffice {
 			ProcessBuilder pb = new ProcessBuilder(OOFFICE_PATH,
 				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
 				    "-headless", "-nologo", "-nofirststartwizard");
-			Map<String, String> env = pb.environment();
-			if ("WINDOWS".equals(SO_HOST)) {
-				System.out.println("Estableciendo entorno " + "c:\\user" + puerto);
-			    env.put("USERPROFILE", "c:\\user"+puerto);
-			} else {
-				System.out.println("Estableciendo entorno " + "/tmp/user" + puerto);
-			    env.put("HOME", "/tmp/user"+puerto);
-			}
+//			Map<String, String> env = pb.environment();
+//			if ("WINDOWS".equals(SO_HOST)) {
+//				System.out.println("Estableciendo entorno " + "c:\\user" + puerto);
+//			    env.put("USERPROFILE", "c:\\user"+puerto);
+//			} else {
+//				System.out.println("Estableciendo entorno " + "/tmp/user" + puerto);
+//			    env.put("HOME", "/tmp/user"+puerto);
+//			}
 			System.out.println("Arrancando proceso...");
 			Process result = pb.start();
 			Thread t = Thread.currentThread();
