@@ -15,15 +15,15 @@ public class ClienteOOffice {
 	/*                          CONSTANTES PUBLICAS                       */
 	/* deberian estar configuradas en un fichero de propiedades o similar */
 	/*                                                                    */
-	public static final String OOFFICE_PATH = "/opt/openoffice.org3/program/soffice.bin";
+	public static final String OOFFICE_PATH = "c:\\Archivos de programa\\OpenOffice.org 3\\program\\soffice.exe";
 	
 	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
 	
-	public static final int TIEMPO_ESPERA = 10000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
+	public static final int TIEMPO_ESPERA = 3000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
 	
-	public static final int PUERTO_INICIAL = 2002;  //a partir de este puerto se empiezan a buscar puertos libres para arrancar el proceso ooffice.bin
+	public static final int PUERTO_INICIAL = 2003;  //a partir de este puerto se empiezan a buscar puertos libres para arrancar el proceso ooffice.bin
 	
-	public static final String SO_HOST = "LINUX"; //en el codigo se esperan los valores 'WINDOWS' o 'LINUX'
+	public static final String SO_HOST = "WINDOWS"; //en el codigo se esperan los valores 'WINDOWS' o 'LINUX'
 	/*                                                                    */
 	/*                     FIN  CONSTANTES PUBLICAS                       */
 	/*                                                                    */
@@ -34,9 +34,9 @@ public class ClienteOOffice {
 
 	private static final String CABECERA = "Esto va en la cabecera";
 
-	private static final String RUTA_FICHERO_PLANTILLA = "/tmp/ooffice/ND_NOTIFICACION.sxw";
+	private static final String RUTA_FICHERO_PLANTILLA = "c:\\temp-test-ooffice\\ND_NOTIFICACION.sxw";
 
-	private static final String RUTA_FICHERO_GENERADO = "/tmp/ooffice/GEN_ND_NOTIFICACION.sxw";
+	private static final String RUTA_FICHERO_GENERADO = "c:\\temp-test-ooffice\\GEN_ND_NOTIFICACION.sxw";
 
 	private static final String INICIO_BOOKMARK = "inicio_decreto";
 
@@ -82,13 +82,15 @@ public class ClienteOOffice {
 		System.out.println("Buscando puerto libre...");
 		ServerSocket socket = buscarPuertoLibre(PUERTO_INICIAL);
 		System.out.println("Puerto encontrando: " + socket.getLocalPort());
-		System.out.println("Inicando proceso ooffice...");
+		System.out.println("Iniciando proceso soffice...");
 		Process p = iniciarProcesoOpenOffice(socket.getLocalPort());
 		TableGenerator.initialize(socket.getLocalPort());
 		int result = TableGenerator.betweenBookmarks(RUTA_FICHERO_PLANTILLA,
 				crearFicheroDestino(), INICIO_BOOKMARK, FIN_BOOKMARK,
 				TARGET_BOOKMARK, CABECERA, PIE);
+		System.out.println("Parando proceso soffice...");
 		p.destroy();
+		System.out.println("Liberando puerto " + socket.getLocalPort() + "...");
 		try {
 			socket.close();
 		} catch (IOException e) {
