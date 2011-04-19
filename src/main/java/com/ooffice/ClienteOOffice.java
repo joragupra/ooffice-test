@@ -17,7 +17,7 @@ public class ClienteOOffice {
 	/*                                                                    */
 	public static final String OOFFICE_PATH = "/opt/openoffice.org2.4/program/soffice";
 	
-	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
+	private static final String SOCKET_OPTS = "\"-accept=socket,host=localhost,port=";
 	
 	public static final int TIEMPO_ESPERA = 10000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
 	
@@ -88,9 +88,7 @@ public class ClienteOOffice {
 		int result = TableGenerator.betweenBookmarks(RUTA_FICHERO_PLANTILLA,
 				crearFicheroDestino(), INICIO_BOOKMARK, FIN_BOOKMARK,
 				TARGET_BOOKMARK, CABECERA, PIE);
-		System.out.println("Parando proceso soffice...");
 		p.destroy();
-		System.out.println("Liberando puerto " + socket.getLocalPort() + "...");
 		try {
 			socket.close();
 		} catch (IOException e) {
@@ -116,11 +114,14 @@ public class ClienteOOffice {
 	
 	public Process iniciarProcesoOpenOffice(int puerto){
 		try {
-			System.out.println("Ejecutando commando " + OOFFICE_PATH + 
-				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager"
-				    + " -headless" + " -nologo" + " -nofirststartwizard");
-			String[] command = new String[]{OOFFICE_PATH, SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
-					" -headless", " -nologo", " -nofirststartwizard"};
+//			System.out.println("Ejecutando commando " + OOFFICE_PATH + " " +
+//				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager\"" +
+//				    "-nologo -headless -nofirststartwizard");
+			String[] command = new String[]{OOFFICE_PATH, 
+					SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager\""
+					+ " -nologo" + " -headless" + " -nofirststartwizard"};
+			System.out.println("Ejecutando commando " + command);
+			
 //			Map<String, String> env = pb.environment();
 //			if ("WINDOWS".equals(SO_HOST)) {
 //				System.out.println("Estableciendo entorno " + "c:\\user" + puerto);
@@ -139,7 +140,7 @@ public class ClienteOOffice {
 					e1.printStackTrace();
 				}
 			}
-			System.out.println("Proceso arrancado despues de espera de " + TIEMPO_ESPERA + " ms");
+			System.out.println("Proceso arrancado con despues de espera de " + TIEMPO_ESPERA + " ms");
 			return result;
 		} catch (IOException e) {
 			e.printStackTrace();
