@@ -89,7 +89,7 @@ public class ClienteOOffice {
 				TARGET_BOOKMARK, CABECERA, PIE);
 		System.out.println("Parando proceso soffice con script...");
 		try {
-			Runtime.getRuntime().exec("/tmp/ooffice/OpenOfficeServidorManual.sh stop " + socket.getLocalPort());
+			Runtime.getRuntime().exec("/etc/init.d/OpenOfficeServidorManual stop " + socket.getLocalPort());
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -119,7 +119,7 @@ public class ClienteOOffice {
 	public Process iniciarProcesoOpenOffice(int puerto){
 		try {
 			System.out.println("Arrancando servicio soffice con script...");
-			Process result = Runtime.getRuntime().exec("/tmp/ooffice/OpenOfficeServidorManual.sh start " + puerto);
+			Process result = Runtime.getRuntime().exec("/etc/init.d/OpenOfficeServidorManual start " + puerto);
 			Thread t = Thread.currentThread();
 			synchronized (t) {
 				try {
@@ -128,7 +128,8 @@ public class ClienteOOffice {
 					e1.printStackTrace();
 				}
 			}
-			System.out.println("Proceso arrancado con despues de espera de " + TIEMPO_ESPERA + " ms");
+			System.out.println("Resultado de lanzar script " + result.exitValue());
+			System.out.println("Proceso arrancado despues de espera de " + TIEMPO_ESPERA + " ms");
 			return result;
 		} catch (IOException e) {
 			e.printStackTrace();
