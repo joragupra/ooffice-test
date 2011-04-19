@@ -88,12 +88,10 @@ public class ClienteOOffice {
 				crearFicheroDestino(), INICIO_BOOKMARK, FIN_BOOKMARK,
 				TARGET_BOOKMARK, CABECERA, PIE);
 		System.out.println("Parando proceso soffice con script...");
-		ProcessBuilder parada = new ProcessBuilder("/tmp/ooffice/OpenOfficeServidorManual.sh stop " + socket.getLocalPort());
 		try {
-			parada.start();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Runtime.getRuntime().exec("/tmp/ooffice/OpenOfficeServidorManual.sh stop " + socket.getLocalPort());
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
 //		try {
 //			socket.close();
