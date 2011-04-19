@@ -15,7 +15,7 @@ public class ClienteOOffice {
 	/*                          CONSTANTES PUBLICAS                       */
 	/* deberian estar configuradas en un fichero de propiedades o similar */
 	/*                                                                    */
-	public static final String OOFFICE_PATH = "/opt/openoffice.org3/program/soffice.bin";
+	public static final String OOFFICE_PATH = "/opt/openoffice.org2.4/program/soffice";
 	
 	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
 	
@@ -140,7 +140,7 @@ public class ClienteOOffice {
 					e1.printStackTrace();
 				}
 			}
-			System.out.println("Proceso arrancado con despues de espera de " + TIEMPO_ESPERA + " ms");
+			System.out.println("Proceso arrancado despues de espera de " + TIEMPO_ESPERA + " ms");
 			return result;
 		} catch (IOException e) {
 			e.printStackTrace();
