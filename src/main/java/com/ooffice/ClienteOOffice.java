@@ -83,17 +83,15 @@ public class ClienteOOffice {
 		ServerSocket socket = buscarPuertoLibre(PUERTO_INICIAL);
 		System.out.println("Puerto encontrando: " + socket.getLocalPort());
 		System.out.println("Inicando proceso ooffice...");
-		Process p = iniciarProcesoOpenOffice(2002);//socket.getLocalPort());
-		TableGenerator.initialize(2002);//socket.getLocalPort());
+		iniciarProcesoOpenOffice(socket.getLocalPort());
+		TableGenerator.initialize(socket.getLocalPort());
 		int result = TableGenerator.betweenBookmarks(RUTA_FICHERO_PLANTILLA,
 				crearFicheroDestino(), INICIO_BOOKMARK, FIN_BOOKMARK,
 				TARGET_BOOKMARK, CABECERA, PIE);
-		ProcessBuilder parada = new ProcessBuilder("/tmp/ooffice/OpenOfficeServidorManual.sh stop " + socket.getLocalPort());
 		try {
-			parada.start();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Runtime.getRuntime().exec("/tmp/ooffice/OpenOfficeServidorManual.sh stop " + socket.getLocalPort());
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
 //		p.destroy();
 //		try {

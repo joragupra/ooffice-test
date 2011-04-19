@@ -106,77 +106,16 @@ public class TableGenerator {
 	}
 	  
 	public synchronized static void initialize(int puerto) {
-		  		
-	/*try {
-	    try {
-				xComponentContext = com.sun.star.comp.helper.Bootstrap.bootstrap();
-		} catch (java.lang.Exception e) {
-			e.printStackTrace();
-		}
-		      
-	      XMultiComponentFactory xMultiComponentFactory = xComponentContext.getServiceManager();
-	      Object desktop = xMultiComponentFactory .createInstanceWithContext("com.sun.star.frame.Desktop", xComponentContext);
-	      xcomponentloader = (XComponentLoader) UnoRuntime.queryInterface(XComponentLoader.class, desktop);
-	  }
-	  catch( Exception e ) {
-	      e.printStackTrace();
-		      
-	   }*/
-		
-		
-		  	
-			//log.info("sxw2pdfl - Convirtiendo a PDF:" + sxw + "->" + pdf);
-//		    try {
-//		      try {
-//				xComponentContext =    com.sun.star.comp.helper.Bootstrap.createInitialComponentContext( null );
-//			} catch (java.lang.Exception e) {
-//				
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-		      
-		      //XMultiComponentFactory xMultiComponentFactory =      xComponentContext.getServiceManager();
-
-		      //Object objectUrlResolver = xMultiComponentFactory.createInstanceWithContext("com.sun.star.bridge.UnoUrlResolver", xComponentContext );
-		      
-//		      XUnoUrlResolver xurlresolver = ( XUnoUrlResolver )
-//		      UnoRuntime.queryInterface( XUnoUrlResolver.class,objectUrlResolver );
-		      
 		      String ip_openoffice = "localhost";//ResourceBundle.getBundle("aplicacion").getString("ip.openoffice");
 		      String puerto_openoffice = "" + puerto;//ResourceBundle.getBundle("aplicacion").getString("puerto.openoffice");
 		      
 		      System.out.println("Conectando a servicio con SocketOpenOfficeConnection en host="+ip_openoffice+",port="+puerto_openoffice+" ...");
-		      //Object objectInitial = xurlresolver.resolve( "uno:socket,host="+ip_openoffice+",port="+puerto_openoffice+";urp;StarOffice.ServiceManager" );
 		      OpenOfficeConnection connection = new SocketOpenOfficeConnection(ip_openoffice, puerto);
-		      
-		      
 		      System.out.println("Conexion establecida correctamente");
-
-//		      xMultiComponentFactory = ( XMultiComponentFactory )
-//		      UnoRuntime.queryInterface( XMultiComponentFactory.class, objectInitial );
 		      
-//		      XPropertySet xpropertysetMultiComponentFactory = ( XPropertySet )
-//		      UnoRuntime.queryInterface( XPropertySet.class, xMultiComponentFactory );
-		      
-
-//		      Object objectDefaultContext =
-//		      xpropertysetMultiComponentFactory.getPropertyValue( "DefaultContext" );
-		      
-
-//		      xComponentContext = ( XComponentContext ) UnoRuntime.queryInterface(   XComponentContext.class, objectDefaultContext );
-		      
-
-//		      xcomponentloader = ( XComponentLoader )  UnoRuntime.queryInterface( XComponentLoader.class, xMultiComponentFactory.createInstanceWithContext("com.sun.star.frame.Desktop", xComponentContext ) );
-		      
+		      System.out.println("Obteniendo componentloader...");
 		      xcomponentloader = connection.getDesktop();
-		      
-//		    }
-//		    catch( Exception e ) {
-//		      e.printStackTrace();
-//
-//		      
-//		    }
-		
+		      System.out.println("componentloader obtenido correctamente");
 		}
 	
 	/**
