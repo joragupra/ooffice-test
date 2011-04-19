@@ -118,7 +118,7 @@ public class ClienteOOffice {
 		try {
 			System.out.println("Ejecutando commando " + OOFFICE_PATH + 
 				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager"
-				    + "-headless" + "-nologo" + " -nofirststartwizard");
+				    + " -headless" + " -nologo" + " -nofirststartwizard");
 			ProcessBuilder pb = new ProcessBuilder(OOFFICE_PATH,
 				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
 				    "-headless", "-nologo", "-nofirststartwizard");
