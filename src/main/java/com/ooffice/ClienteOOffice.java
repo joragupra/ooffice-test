@@ -72,9 +72,10 @@ public class ClienteOOffice {
 			System.out.println("Ejecutando commando " + OOFFICE_PATH + 
 				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager"
 				    + " -headless" + " -nologo" + " -nofirststartwizard");
-			ProcessBuilder pb = new ProcessBuilder(OOFFICE_PATH,
-				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
-				    "-headless", "-nologo", "-nofirststartwizard");
+//			ProcessBuilder pb = new ProcessBuilder(OOFFICE_PATH,
+//				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
+//				    "-headless", "-nologo", "-nofirststartwizard");
+			
 //			Map<String, String> env = pb.environment();
 //			if ("WINDOWS".equals(SO_HOST)) {
 //				System.out.println("Estableciendo entorno " + "c:\\user" + puerto);
@@ -84,7 +85,10 @@ public class ClienteOOffice {
 //			    env.put("HOME", "/tmp/user"+puerto);
 //			}
 			System.out.println("Arrancando proceso...");
-			Process result = pb.start();
+			Process result = Runtime.getRuntime().exec(OOFFICE_PATH + " " +
+				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager" +
+				    " -headless" + " -nologo" + " -nofirststartwizard");
+//			Process result = pb.start();
 			Thread t = Thread.currentThread();
 			synchronized (t) {
 				try {
