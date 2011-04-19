@@ -12,15 +12,9 @@ public class ClienteOOffice {
 	/*                          CONSTANTES PUBLICAS                       */
 	/* deberian estar configuradas en un fichero de propiedades o similar */
 	/*                                                                    */
-	public static final String OOFFICE_PATH = "/opt/openoffice.org2.4/program/soffice";
+	public static final String TOMCAT_PATH = "/etc/init.d/TomcatService";
 	
-	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
-	
-	public static final int TIEMPO_ESPERA = 30000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
-	
-	public static final int PUERTO_INICIAL = 2003;  //a partir de este puerto se empiezan a buscar puertos libres para arrancar el proceso ooffice.bin
-	
-	public static final String SO_HOST = "WINDOWS"; //en el codigo se esperan los valores 'WINDOWS' o 'LINUX'
+	public static final int TIEMPO_ESPERA = 120000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
 	/*                                                                    */
 	/*                     FIN  CONSTANTES PUBLICAS                       */
 	/*                                                                    */
@@ -37,58 +31,18 @@ public class ClienteOOffice {
 	 */
 	public static void main(String[] args) {
 		ClienteOOffice prueba = new ClienteOOffice();
-		System.out.println("Buscando puerto libre...");
-		ServerSocket socket = prueba.buscarPuertoLibre(PUERTO_INICIAL);
-		System.out.println("Puerto encontrando: " + socket.getLocalPort());
-		System.out.println("Iniciando proceso soffice...");
-		Process p = prueba.iniciarProcesoOpenOffice(socket.getLocalPort());
-		System.out.println("Parando proceso soffice...");
+		System.out.println("Iniciando tomcat...");
+		Process p = prueba.iniciarProcesoTomcat();
+		System.out.println("Parando tomcat...");
 		p.destroy();
-		System.out.println("Liberando puerto " + socket.getLocalPort() + "...");
-		try {
-			socket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
-	public ServerSocket buscarPuertoLibre(int initPort){
-		ServerSocket socket = null;
-		int puerto = initPort;
-		while(socket==null){
-			try {
-				socket = new ServerSocket(puerto);
-				socket.setReuseAddress(true);
-			} catch (IOException e) {
-				socket = null;
-				puerto++;
-			}
-		}
-		return socket;
-	}
-	
-	public Process iniciarProcesoOpenOffice(int puerto){
+	public Process iniciarProcesoTomcat(){
 		try {
-			System.out.println("Ejecutando commando " + OOFFICE_PATH + 
-				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager"
-				    + " -headless" + " -nologo" + " -nofirststartwizard");
-//			ProcessBuilder pb = new ProcessBuilder(OOFFICE_PATH,
-//				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
-//				    "-headless", "-nologo", "-nofirststartwizard");
-			
-//			Map<String, String> env = pb.environment();
-//			if ("WINDOWS".equals(SO_HOST)) {
-//				System.out.println("Estableciendo entorno " + "c:\\user" + puerto);
-//			    env.put("USERPROFILE", "c:\\user"+puerto);
-//			} else {
-//				System.out.println("Estableciendo entorno " + "/tmp/user" + puerto);
-//			    env.put("HOME", "/tmp/user"+puerto);
-//			}
-			System.out.println("Arrancando proceso...");
-			Process result = Runtime.getRuntime().exec(OOFFICE_PATH + " " +
-				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager" +
-				    " -headless" + " -nologo" + " -nofirststartwizard");
-//			Process result = pb.start();
+			System.out.println("Ejecutando commando " + TOMCAT_PATH + 
+				    " start");
+			Process result = Runtime.getRuntime().exec(TOMCAT_PATH + " start");
+			System.out.println("Espera...");
 			Thread t = Thread.currentThread();
 			synchronized (t) {
 				try {
@@ -97,7 +51,6 @@ public class ClienteOOffice {
 					e1.printStackTrace();
 				}
 			}
-			System.out.println("Proceso arrancado despues de espera de " + TIEMPO_ESPERA + " ms");
 			return result;
 		} catch (IOException e) {
 			e.printStackTrace();
