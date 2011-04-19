@@ -4,7 +4,7 @@
 
   <groupId>com.ooffice</groupId>
   <artifactId>ooffice-test</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0-SCRIPT-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>ooffice-test</name>
