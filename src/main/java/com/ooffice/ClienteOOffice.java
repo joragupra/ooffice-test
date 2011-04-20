@@ -18,7 +18,7 @@ public class ClienteOOffice {
 	
 	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
 	
-	public static final int TIEMPO_ESPERA = 20000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
+	public static final int TIEMPO_ESPERA = 120000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
 	
 	public static final int PUERTO_INICIAL = 2002;  //a partir de este puerto se empiezan a buscar puertos libres para arrancar el proceso ooffice.bin
 	
@@ -54,39 +54,11 @@ public class ClienteOOffice {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		ClienteOOffice prueba = new ClienteOOffice();
-		for (int i = 0; i < NUMERO_DOCUMENTOS_GENERADOS; i++) {
-			System.out.println("Generando documento " + (i+1));
-			prueba.generarDocumento();
-		}
-	}
-	
-	/**
-	 * <p>
-	 * Muestra c&oacute;mo se deben generar los documentos en 3 pasos para que 
-	 * no haya problemas con la memoria consumida por el proceso soffice.bin:
-	 * </p>
-	 * <p><ol>
-	 * <li>Buscar un puerto a partir del inicial que est&eacute; libre para 
-	 * poder arrancar el proceso soffice.bin</li>
-	 * <li>Iniciar el proceso soffice.bin en el puerto indicado</li>
-	 * <li>Conectar la aplicaci&oacute;n con el servidor OpenOffice arrancadoo 
-	 * en el puerto que se encontr&oacute;</li>
-	 * <li>Generar el documento</li>
-	 * </ol></p>
-	 * 
-	 * @return
-	 */
-	public int generarDocumento() {
 		System.out.println("Buscando puerto libre...");
 		ServerSocket socket = buscarPuertoLibre(PUERTO_INICIAL);
 		System.out.println("Puerto encontrando: " + socket.getLocalPort());
 		System.out.println("Inicando proceso ooffice...");
 		iniciarProcesoOpenOffice(socket.getLocalPort());
-		TableGenerator.initialize(2002);//socket.getLocalPort());
-		int result = TableGenerator.betweenBookmarks(RUTA_FICHERO_PLANTILLA,
-				crearFicheroDestino(), INICIO_BOOKMARK, FIN_BOOKMARK,
-				TARGET_BOOKMARK, CABECERA, PIE);
 		System.out.println("Parando proceso soffice con script...");
 		try {
 			Runtime.getRuntime().exec(new String[]{"/etc/init.d/OpenOfficeServidor", "stop"});
@@ -101,15 +73,9 @@ public class ClienteOOffice {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-//		try {
-//			socket.close();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		return result;
 	}
 	
-	public ServerSocket buscarPuertoLibre(int initPort){
+	public static ServerSocket buscarPuertoLibre(int initPort){
 		ServerSocket socket = null;
 		int puerto = initPort;
 		while(socket==null){
@@ -124,7 +90,7 @@ public class ClienteOOffice {
 		return socket;
 	}
 	
-	public Process iniciarProcesoOpenOffice(int puerto){
+	public static Process iniciarProcesoOpenOffice(int puerto){
 		try {
 			System.out.println("Arrancando servicio soffice con script...");
 			String[] command = new String[]{"/etc/init.d/OpenOfficeServidor", "start"};
@@ -146,27 +112,5 @@ public class ClienteOOffice {
 			e.printStackTrace();
 			return null;
 		}
-	}
-
-	/**
-	 * <p>
-	 * Copia el fichero de <code>RUTA_FICHERO_GENERADO</code> a&ntilde;adiendo 
-	 * un sufijo al mismo (sacado de <code>System.currentTimeMillis</code>) y 
-	 * devuelve la ruta del nuevo fichero.
-	 * </p>
-	 * 
-	 * @return
-	 */
-	private String crearFicheroDestino() {
-		File original = new File(RUTA_FICHERO_GENERADO);
-		String[] ficheroExtension = RUTA_FICHERO_GENERADO.split("\\.");
-		File copia = new File(ficheroExtension[0] + "_"
-				+ System.currentTimeMillis() + "." + ficheroExtension[1]);
-		try {
-			FileUtils.copyFile(original, copia);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return copia.getAbsolutePath();
 	}
 }
