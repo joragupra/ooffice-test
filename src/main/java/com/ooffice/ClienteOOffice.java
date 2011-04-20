@@ -16,9 +16,11 @@ public class ClienteOOffice {
 	/*                          CONSTANTES PUBLICAS                       */
 	/* deberian estar configuradas en un fichero de propiedades o similar */
 	/*                                                                    */
-	public static final String OOFFICE_PATH = "/opt/openoffice.org2.4/program/soffice";
+	public static final String SCRIPT = "/etc/init.d/OpenOfficeServidorMultiPuerto";
 	
-	private static final String SOCKET_OPTS = "\"-accept=socket,host=localhost,port=";
+	public static final String ARRANQUE = "start";
+	
+	public static final String PARADA = "stop";
 	
 	public static final int TIEMPO_ESPERA = 10000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
 	
@@ -84,12 +86,12 @@ public class ClienteOOffice {
 		Socket socket = buscarPuertoLibre(PUERTO_INICIAL);
 		System.out.println("Puerto encontrando: " + socket.getLocalPort());
 		System.out.println("Iniciando proceso soffice...");
-		iniciarProcesoOpenOffice(socket.getLocalPort());
+		ejecutarScriptProcesoOpenOffice(true, socket.getLocalPort());
 		TableGenerator.initialize(socket.getLocalPort());
 		int result = TableGenerator.betweenBookmarks(RUTA_FICHERO_PLANTILLA,
 				crearFicheroDestino(), INICIO_BOOKMARK, FIN_BOOKMARK,
 				TARGET_BOOKMARK, CABECERA, PIE);
-		finalizarProcesoOpenOffice(socket.getLocalPort());
+		ejecutarScriptProcesoOpenOffice(false, socket.getLocalPort());
 		System.out.println("Fin de la ejecucion de la prueba");
 		return result;
 	}
@@ -109,16 +111,33 @@ public class ClienteOOffice {
 		return socket;
 	}
 	
-	public Process iniciarProcesoOpenOffice(int puerto){
+	/**
+	 * <p>
+	 * Lanza el script de arranque y parada de OpenOffice que se encuentra en 
+	 * la ruta <code>SCRIPT</code>. El script se puede lanzar para arrancar el 
+	 * proceso soffice (<code>isArranqueParada</code>=<i>true</i>) o para 
+	 * deternerlo (<code>isArranqueParada</code>=<i>false</i>). El proceso 
+	 * soffice escuchar&aacute; peticiones en el puerto indicado tras el 
+	 * arranque (debe estar previamente escuchando en ese puerto en caso de 
+	 * parada).
+	 * </p>
+	 * 
+	 * @param isArranqueParada <i>true</i> para arrancar el proceso soffice y 
+	 * <i>false</i> para pararlo.
+	 * @param puerto Indica el puerto en el que se quiere que el proceso 
+	 * soffice escuche peticiones.
+	 * @return
+	 */
+	public Process ejecutarScriptProcesoOpenOffice(boolean isArranqueParada, int puerto){
 		Process result = null;
 		try {
-			System.out.println("Lanzando script de arranque /etc/init.d/OpenOfficeServidorArrancar start " + puerto);
-			result = Runtime.getRuntime().exec("/etc/init.d/OpenOfficeServidorArrancar start " + puerto);
+			System.out.println("Lanzando script " + SCRIPT + " " + (isArranqueParada?ARRANQUE:PARADA));
+			result = Runtime.getRuntime().exec(SCRIPT + " " + (isArranqueParada?ARRANQUE:PARADA) + " " + puerto);
 			BufferedReader read=new BufferedReader(new InputStreamReader(result.getInputStream()));
 			while(read.ready()) {
 				System.out.println(read.readLine());
 			}
-			System.out.println("Proceso arrancado");
+			System.out.println("Script lanzado");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -130,25 +149,10 @@ public class ClienteOOffice {
 				e1.printStackTrace();
 			}
 		}
-		System.out.println("Proceso arrancado con despues de espera de " + TIEMPO_ESPERA + " ms");
+		System.out.println("Despues de espera de " + TIEMPO_ESPERA + " ms");
 		return result;
 	}
 	
-	public Process finalizarProcesoOpenOffice(int puerto){
-		Process result = null;
-		try {
-			result = Runtime.getRuntime().exec("/etc/init.d/OpenOfficeServidorParar stop " + puerto);
-			BufferedReader read=new BufferedReader(new InputStreamReader(result.getInputStream()));
-			while(read.ready()) {
-				System.out.println(read.readLine());
-			}
-			System.out.println("Proceso parado");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
-
 	/**
 	 * <p>
 	 * Copia el fichero de <code>RUTA_FICHERO_GENERADO</code> a&ntilde;adiendo 
