@@ -1,12 +1,9 @@
 package com.ooffice;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.ServerSocket;
-
-import org.apache.commons.io.FileUtils;
+import java.net.Socket;
 
 
 
@@ -20,7 +17,7 @@ public class ClienteOOffice {
 	
 	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
 	
-	public static final int TIEMPO_ESPERA = 120000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
+	public static final int TIEMPO_ESPERA = 60000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
 	
 	public static final int PUERTO_INICIAL = 2002;  //a partir de este puerto se empiezan a buscar puertos libres para arrancar el proceso ooffice.bin
 	
@@ -57,73 +54,20 @@ public class ClienteOOffice {
 	 */
 	public static void main(String[] args) {
 		System.out.println("Buscando puerto libre...");
-		ServerSocket socket = buscarPuertoLibre(PUERTO_INICIAL);
+		Socket socket = buscarPuertoLibre(PUERTO_INICIAL);
 		System.out.println("Puerto encontrando: " + socket.getLocalPort());
-		System.out.println("Inicando proceso ooffice...");
-		iniciarProcesoOpenOffice(socket.getLocalPort());
-		System.out.println("Parando proceso soffice con script...");
+		System.out.println("Iniciando proceso ooffice...");
 		try {
-			Process result = Runtime.getRuntime().exec(new String[]{"/etc/init.d/OpenOfficeServidor", "stop"});
+			Process result = Runtime.getRuntime().exec("/etc/init.d/OpenOfficeServidorArrancar start " + socket.getLocalPort());
 			BufferedReader read=new BufferedReader(new InputStreamReader(result.getInputStream()));
-			while(read.ready()) {
+			while(read.ready())
+			{
 				System.out.println(read.readLine());
-            }
-			Thread t = Thread.currentThread();
-			synchronized (t) {
-				try {
-					t.wait(TIEMPO_ESPERA);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
 			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			System.out.println("Proceso arrancado");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-	}
-	
-	public static ServerSocket buscarPuertoLibre(int initPort){
-		ServerSocket socket = null;
-		int puerto = initPort;
-		while(socket==null){
-			try {
-				socket = new ServerSocket(puerto);
-				socket.setReuseAddress(true);
-			} catch (IOException e) {
-				socket = null;
-				puerto++;
-			}
-		}
-		return socket;
-	}
-	
-	public static void iniciarProcesoOpenOffice(int puerto){
-		Thread hilo = new Thread(new Runnable() {
-			public void run() {
-				System.out.println("Arrancando servicio soffice con script en un hilo independiente...");
-				String[] command = new String[]{"/bin/bash",  "-c", "/etc/init.d/OpenOfficeServidor start"};
-				for(String s : command){
-					System.out.print(s + " ");
-				}
-				try {
-					Process result = Runtime.getRuntime().exec(command);
-					BufferedReader read=new BufferedReader(new InputStreamReader(result.getInputStream()));
-					while(read.ready()) {
-						System.out.println(read.readLine());
-		            }
-					System.out.println("Comando ejecutado");
-					int r = result.waitFor();
-					System.out.println("Resultado de ejecucion " + r);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		hilo.run();
-		
 		Thread t = Thread.currentThread();
 		synchronized (t) {
 			try {
@@ -132,7 +76,34 @@ public class ClienteOOffice {
 				e1.printStackTrace();
 			}
 		}
-		System.out.println("Proceso arrancado despues de espera de " + TIEMPO_ESPERA + " ms");
-
+		System.out.println("Transcurridos " + TIEMPO_ESPERA + " ms de espera");
+		Process result2;
+		try {
+			result2 = Runtime.getRuntime().exec("/etc/init.d/OpenOfficeServidorParar stop " + socket.getLocalPort());
+			BufferedReader read2=new BufferedReader(new InputStreamReader(result2.getInputStream()));
+			while(read2.ready())
+			{
+			System.out.println(read2.readLine());
+			}
+			System.out.println("Proceso parado");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Fin de la ejecucion de la prueba");
+	}
+	
+	public static Socket buscarPuertoLibre(int initPort){
+		Socket socket = null;
+		int puerto = initPort;
+		while(socket==null){
+			try {
+				socket = new Socket("localhost", puerto);
+				socket.setReuseAddress(true);
+			} catch (IOException e) {
+				socket = null;
+				puerto++;
+			}
+		}
+		return socket;
 	}
 }
