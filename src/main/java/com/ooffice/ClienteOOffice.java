@@ -18,7 +18,7 @@ public class ClienteOOffice {
 	
 	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
 	
-	public static final int TIEMPO_ESPERA = 10000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
+	public static final int TIEMPO_ESPERA = 20000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
 	
 	public static final int PUERTO_INICIAL = 2002;  //a partir de este puerto se empiezan a buscar puertos libres para arrancar el proceso ooffice.bin
 	
@@ -83,13 +83,21 @@ public class ClienteOOffice {
 		System.out.println("Puerto encontrando: " + socket.getLocalPort());
 		System.out.println("Inicando proceso ooffice...");
 		iniciarProcesoOpenOffice(socket.getLocalPort());
-		TableGenerator.initialize(socket.getLocalPort());
+		TableGenerator.initialize(2002);//socket.getLocalPort());
 		int result = TableGenerator.betweenBookmarks(RUTA_FICHERO_PLANTILLA,
 				crearFicheroDestino(), INICIO_BOOKMARK, FIN_BOOKMARK,
 				TARGET_BOOKMARK, CABECERA, PIE);
 		System.out.println("Parando proceso soffice con script...");
 		try {
-			Runtime.getRuntime().exec("/etc/init.d/OpenOfficeServidorManual stop " + socket.getLocalPort());
+			Runtime.getRuntime().exec(new String[]{"/etc/init.d/OpenOfficeServidor", "stop"});
+			Thread t = Thread.currentThread();
+			synchronized (t) {
+				try {
+					t.wait(TIEMPO_ESPERA);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -119,7 +127,11 @@ public class ClienteOOffice {
 	public Process iniciarProcesoOpenOffice(int puerto){
 		try {
 			System.out.println("Arrancando servicio soffice con script...");
-			Process result = Runtime.getRuntime().exec("/etc/init.d/OpenOfficeServidorManual start " + puerto);
+			String[] command = new String[]{"/etc/init.d/OpenOfficeServidor", "start"};
+			for(String s : command){
+				System.out.println(s);
+			}
+			Process result = Runtime.getRuntime().exec(command);
 			Thread t = Thread.currentThread();
 			synchronized (t) {
 				try {
@@ -128,7 +140,6 @@ public class ClienteOOffice {
 					e1.printStackTrace();
 				}
 			}
-			System.out.println("Resultado de lanzar script " + result.exitValue());
 			System.out.println("Proceso arrancado despues de espera de " + TIEMPO_ESPERA + " ms");
 			return result;
 		} catch (IOException e) {
