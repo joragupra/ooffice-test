@@ -1,9 +1,10 @@
 package com.ooffice;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.Map;
+import java.io.InputStreamReader;
+import java.net.Socket;
 
 import org.apache.commons.io.FileUtils;
 
@@ -80,29 +81,25 @@ public class ClienteOOffice {
 	 */
 	public int generarDocumento() {
 		System.out.println("Buscando puerto libre...");
-		ServerSocket socket = buscarPuertoLibre(PUERTO_INICIAL);
+		Socket socket = buscarPuertoLibre(PUERTO_INICIAL);
 		System.out.println("Puerto encontrando: " + socket.getLocalPort());
 		System.out.println("Iniciando proceso soffice...");
-		Process p = iniciarProcesoOpenOffice(socket.getLocalPort());
+		iniciarProcesoOpenOffice(socket.getLocalPort());
 		TableGenerator.initialize(socket.getLocalPort());
 		int result = TableGenerator.betweenBookmarks(RUTA_FICHERO_PLANTILLA,
 				crearFicheroDestino(), INICIO_BOOKMARK, FIN_BOOKMARK,
 				TARGET_BOOKMARK, CABECERA, PIE);
-		p.destroy();
-		try {
-			socket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		finalizarProcesoOpenOffice(socket.getLocalPort());
+		System.out.println("Fin de la ejecucion de la prueba");
 		return result;
 	}
 	
-	public ServerSocket buscarPuertoLibre(int initPort){
-		ServerSocket socket = null;
+	public Socket buscarPuertoLibre(int initPort){
+		Socket socket = null;
 		int puerto = initPort;
 		while(socket==null){
 			try {
-				socket = new ServerSocket(puerto);
+				socket = new Socket("localhost", puerto);
 				socket.setReuseAddress(true);
 			} catch (IOException e) {
 				socket = null;
@@ -113,39 +110,43 @@ public class ClienteOOffice {
 	}
 	
 	public Process iniciarProcesoOpenOffice(int puerto){
+		Process result = null;
 		try {
-//			System.out.println("Ejecutando commando " + OOFFICE_PATH + " " +
-//				    SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager\"" +
-//				    "-nologo -headless -nofirststartwizard");
-			String[] command = new String[]{OOFFICE_PATH, 
-					SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager\""
-					+ " -nologo" + " -headless" + " -nofirststartwizard"};
-			System.out.println("Ejecutando commando " + command);
-			
-//			Map<String, String> env = pb.environment();
-//			if ("WINDOWS".equals(SO_HOST)) {
-//				System.out.println("Estableciendo entorno " + "c:\\user" + puerto);
-//			    env.put("USERPROFILE", "c:\\user"+puerto);
-//			} else {
-//				System.out.println("Estableciendo entorno " + "/tmp/user" + puerto);
-//			    env.put("HOME", "/tmp/user"+puerto);
-//			}
-			System.out.println("Arrancando proceso...");
-			Process result = Runtime.getRuntime().exec(command);
-			Thread t = Thread.currentThread();
-			synchronized (t) {
-				try {
-					t.wait(TIEMPO_ESPERA);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
+			System.out.println("Lanzando script de arranque /etc/init.d/OpenOfficeServidorArrancar start " + puerto);
+			result = Runtime.getRuntime().exec("/etc/init.d/OpenOfficeServidorArrancar start " + puerto);
+			BufferedReader read=new BufferedReader(new InputStreamReader(result.getInputStream()));
+			while(read.ready()) {
+				System.out.println(read.readLine());
 			}
-			System.out.println("Proceso arrancado con despues de espera de " + TIEMPO_ESPERA + " ms");
-			return result;
+			System.out.println("Proceso arrancado");
 		} catch (IOException e) {
 			e.printStackTrace();
-			return null;
 		}
+		Thread t = Thread.currentThread();
+		synchronized (t) {
+			try {
+				t.wait(TIEMPO_ESPERA);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+		}
+		System.out.println("Proceso arrancado con despues de espera de " + TIEMPO_ESPERA + " ms");
+		return result;
+	}
+	
+	public Process finalizarProcesoOpenOffice(int puerto){
+		Process result = null;
+		try {
+			result = Runtime.getRuntime().exec("/etc/init.d/OpenOfficeServidorParar stop " + puerto);
+			BufferedReader read=new BufferedReader(new InputStreamReader(result.getInputStream()));
+			while(read.ready()) {
+				System.out.println(read.readLine());
+			}
+			System.out.println("Proceso parado");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 	/**
