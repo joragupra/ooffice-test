@@ -14,9 +14,9 @@ public class ClienteOOffice {
 	/*                                                                    */
 	public static final String OOFFICE_PATH = "/opt/openoffice.org2.4/program/soffice";
 	
-	private static final String SOCKET_OPTS = "-accept=socket,host=localhost,port=";
+	private static final String SOCKET_OPTS = "-accept=socket,host=0,port=";
 	
-	public static final int TIEMPO_ESPERA = 30000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
+	public static final int TIEMPO_ESPERA = 120000;   //tiempo que hay que esperar dese que se arranca el proceso soffice.bin hasta que se puede empezar a usar
 	
 	public static final int PUERTO_INICIAL = 2003;  //a partir de este puerto se empiezan a buscar puertos libres para arrancar el proceso ooffice.bin
 	
@@ -74,7 +74,7 @@ public class ClienteOOffice {
 				    + " -headless" + " -nologo" + " -nofirststartwizard");
 			System.out.println("Arrancando proceso...");
 			String[] command = new String[]{OOFFICE_PATH, SOCKET_OPTS + puerto + ";urp;StarOffice.ServiceManager",
-					" -headless", " -nologo", " -nofirststartwizard"};
+					"-headless", " -nologo", " -nofirststartwizard"};
 			Process result = Runtime.getRuntime().exec(command);
 			Thread t = Thread.currentThread();
 			synchronized (t) {
