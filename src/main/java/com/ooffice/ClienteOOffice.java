@@ -1,7 +1,9 @@
 package com.ooffice;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 
 import org.apache.commons.io.FileUtils;
@@ -61,7 +63,11 @@ public class ClienteOOffice {
 		iniciarProcesoOpenOffice(socket.getLocalPort());
 		System.out.println("Parando proceso soffice con script...");
 		try {
-			Runtime.getRuntime().exec(new String[]{"/etc/init.d/OpenOfficeServidor", "stop"});
+			Process result = Runtime.getRuntime().exec(new String[]{"/etc/init.d/OpenOfficeServidor", "stop"});
+			BufferedReader read=new BufferedReader(new InputStreamReader(result.getInputStream()));
+			while(read.ready()) {
+				System.out.println(read.readLine());
+            }
 			Thread t = Thread.currentThread();
 			synchronized (t) {
 				try {
@@ -90,27 +96,43 @@ public class ClienteOOffice {
 		return socket;
 	}
 	
-	public static Process iniciarProcesoOpenOffice(int puerto){
-		try {
-			System.out.println("Arrancando servicio soffice con script...");
-			String[] command = new String[]{"/etc/init.d/OpenOfficeServidor", "start"};
-			for(String s : command){
-				System.out.println(s);
-			}
-			Process result = Runtime.getRuntime().exec(command);
-			Thread t = Thread.currentThread();
-			synchronized (t) {
+	public static void iniciarProcesoOpenOffice(int puerto){
+		Thread hilo = new Thread(new Runnable() {
+			public void run() {
+				System.out.println("Arrancando servicio soffice con script en un hilo independiente...");
+				String[] command = new String[]{"/bin/bash",  "-c", "/etc/init.d/OpenOfficeServidor start"};
+				for(String s : command){
+					System.out.print(s + " ");
+				}
 				try {
-					t.wait(TIEMPO_ESPERA);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
+					Process result = Runtime.getRuntime().exec(command);
+					BufferedReader read=new BufferedReader(new InputStreamReader(result.getInputStream()));
+					while(read.ready()) {
+						System.out.println(read.readLine());
+		            }
+					System.out.println("Comando ejecutado");
+					int r = result.waitFor();
+					System.out.println("Resultado de ejecucion " + r);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
-			System.out.println("Proceso arrancado despues de espera de " + TIEMPO_ESPERA + " ms");
-			return result;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+		});
+		hilo.run();
+		
+		Thread t = Thread.currentThread();
+		synchronized (t) {
+			try {
+				t.wait(TIEMPO_ESPERA);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 		}
+		System.out.println("Proceso arrancado despues de espera de " + TIEMPO_ESPERA + " ms");
+
 	}
 }
